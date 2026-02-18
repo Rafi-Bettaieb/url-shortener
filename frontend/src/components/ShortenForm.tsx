@@ -12,6 +12,7 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
   
   const [showToast, setShowToast] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('Lien créé avec succès !');
 
   useEffect(() => {
     if (showToast) {
@@ -29,8 +30,8 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
     setError('');
     setShowToast(false);
 
-
     let finalUrl = url.trim();
+    
 
     try {
       const res = await fetch(`${API_URL}/shorten`, {
@@ -44,9 +45,17 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
       }
 
       const data = await res.json();
+      
       setShortUrl(`${API_URL}/${data.shortCode}`);
+      
+      if (data.isNew === false) {
+        setSuccessMessage("Ce lien existe déjà ! Voici son raccourci :");
+      } else {
+        setSuccessMessage("Lien créé avec succès !");
+      }
+
       setUrl('');
-      onUrlAdded(); 
+      onUrlAdded();
       setShowToast(true);
     } catch (err) {
       setError('Impossible de raccourcir ce lien.');
@@ -66,7 +75,7 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Nouveau lien</h2>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <input
-          type="url"
+          type="url" 
           required
           placeholder="Collez votre lien (ex: google.com)"
           value={url}
@@ -88,7 +97,9 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
         <div className="fixed bottom-5 right-5 z-50 animate-bounce-in">
           <div className="bg-gray-800 text-white p-4 rounded-lg shadow-2xl flex items-center gap-4 max-w-md border border-gray-700">
             <div className="flex-1">
-              <p className="text-sm text-green-400 font-bold mb-1">Lien créé avec succès !</p>
+              <p className={`text-sm font-bold mb-1 ${successMessage.includes('existe') ? 'text-yellow-400' : 'text-green-400'}`}>
+                {successMessage}
+              </p>
               <a 
                 href={shortUrl} 
                 target="_blank" 

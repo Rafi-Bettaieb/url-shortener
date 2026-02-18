@@ -24,6 +24,15 @@ export class AppService {
 
   async shortenUrl(originalUrl: string) {
     if (!originalUrl) throw new BadRequestException('URL manquante');
+
+    const existingUrl = await this.prisma.url.findFirst({
+      where: { originalUrl },
+    });
+
+    if (existingUrl) {
+      return { ...existingUrl, isNew: false };
+    }
+
     const tempCode = randomUUID(); 
     
     const newUrl = await this.prisma.url.create({
@@ -35,10 +44,12 @@ export class AppService {
 
     const robustCode = this.encodeId(newUrl.id);
 
-    return this.prisma.url.update({
+    const updatedUrl = await this.prisma.url.update({
       where: { id: newUrl.id },
       data: { shortCode: robustCode },
     });
+
+    return { ...updatedUrl, isNew: true };
   }
 
   async getOriginalUrl(shortCode: string) {

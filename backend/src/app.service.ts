@@ -65,4 +65,15 @@ export class AppService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async deleteUrl(id: number) {
+    const url = await this.prisma.url.findUnique({
+      where: { id },
+    });
+    if (!url) throw new NotFoundException('URL introuvable');
+    
+    return this.prisma.url.delete({
+      where: { id },
+    });
+  }
 }

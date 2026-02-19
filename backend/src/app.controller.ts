@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Res, ParseIntPipe } from '@nestjs/common';
 import { AppService } from './app.service';
 import type { Response } from 'express';
 
@@ -14,6 +14,11 @@ export class AppController {
   @Get('urls')
   async findAll() {
     return this.appService.getAllUrls();
+  }
+
+  @Delete('urls/:id')
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    return this.appService.deleteUrl(id);
   }
 
   @Get(':code')

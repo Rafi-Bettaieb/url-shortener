@@ -40,11 +40,10 @@ export default function Home() {
             marginBottom: '12px',
           }}>
             Des liens courts,<br />
-            <span style={{ color: 'var(--text-secondary)', fontWeight: '300', fontStyle: 'italic' }}>une portée infinie.</span>
           </h1>
 
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.6', maxWidth: '420px', margin: '0 auto' }}>
-            Transformez vos URLs longues en liens élégants et mémorables en un instant.
+            Transformez vos URLs longues en un instant.
           </p>
         </div>
 

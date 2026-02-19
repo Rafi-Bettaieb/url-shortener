@@ -35,6 +35,24 @@ export default function UrlList({ refreshTrigger }: { refreshTrigger: number }) 
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce lien ?')) return;
+
+    try {
+      const res = await fetch(`${API_URL}/urls/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setUrls((prev) => prev.filter((u) => u.id !== id));
+      } else {
+        console.error('Erreur lors de la suppression');
+      }
+    } catch (err) {
+      console.error('Erreur fetch delete:', err);
+    }
+  };
+
   if (loading && urls.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '48px 16px' }}>
@@ -106,7 +124,6 @@ export default function UrlList({ refreshTrigger }: { refreshTrigger: number }) 
           onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-card-hover)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          {/* Favicon placeholder */}
           <div style={{
             width: '28px',
             height: '28px',
@@ -124,7 +141,6 @@ export default function UrlList({ refreshTrigger }: { refreshTrigger: number }) 
             </svg>
           </div>
 
-          {/* URL original */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{
               fontSize: '13px',
@@ -137,7 +153,6 @@ export default function UrlList({ refreshTrigger }: { refreshTrigger: number }) 
             </p>
           </div>
 
-          {/* Short URL */}
           <a
             href={`${API_URL}/${u.shortCode}`}
             target="_blank"
@@ -168,7 +183,6 @@ export default function UrlList({ refreshTrigger }: { refreshTrigger: number }) 
             {API_URL}/{u.shortCode}
           </a>
 
-          {/* Actions */}
           <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
             <button
               onClick={() => handleCopy(u)}
@@ -229,6 +243,38 @@ export default function UrlList({ refreshTrigger }: { refreshTrigger: number }) 
                 <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
               </svg>
             </a>
+
+            <button
+              onClick={() => handleDelete(u.id)}
+              title="Supprimer le lien"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '6px',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.color = '#ef4444';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#ef4444';
+                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239, 68, 68, 0.05)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
           </div>
         </div>
       ))}

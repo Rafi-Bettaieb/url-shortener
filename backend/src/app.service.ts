@@ -8,6 +8,27 @@ export class AppService {
 
   constructor(private prisma: PrismaService) {}
 
+  private async isUrlReachable(targetUrl: string): Promise<boolean> {
+    try {
+      new URL(targetUrl);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(targetUrl, {
+        method: 'HEAD',
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; UrlShortenerBot/1.0)', 
+        },
+      });
+
+      clearTimeout(timeoutId);
+      return response.ok || (response.status >= 300 && response.status < 400);
+    } catch (error) {
+      return false;
+    }
+  }
+
   private encodeId(id: number): string {
     let base = this.characters.length;
     let encoded = '';
@@ -24,6 +45,11 @@ export class AppService {
 
   async shortenUrl(originalUrl: string) {
     if (!originalUrl) throw new BadRequestException('URL manquante');
+
+    const isValid = await this.isUrlReachable(originalUrl);
+    if (!isValid) {
+      throw new BadRequestException("L'URL fournie est inaccessible ou n'existe pas.");
+    }
 
     const existingUrl = await this.prisma.url.findFirst({
       where: { originalUrl },

@@ -37,9 +37,12 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
         body: JSON.stringify({ url: url.trim() }),
       });
 
-      if (!res.ok) throw new Error('Erreur lors de la création du lien');
-
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Erreur lors de la création du lien');
+      }
+
       setShortUrl(`${API_URL}/${data.shortCode}`);
 
       if (data.isNew === false) {
@@ -51,8 +54,8 @@ export default function ShortenForm({ onUrlAdded }: { onUrlAdded: () => void }) 
       setUrl('');
       onUrlAdded();
       setShowToast(true);
-    } catch (err) {
-      setError('Impossible de raccourcir ce lien. Vérifiez le format.');
+    } catch (err: any) {
+      setError(err.message || 'Impossible de raccourcir ce lien.');
       console.error(err);
     } finally {
       setLoading(false);
